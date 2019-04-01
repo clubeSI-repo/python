@@ -10,6 +10,8 @@ Original file is located at
 from bs4 import BeautifulSoup
 import requests
 import json
+import datetime
+
 """
 TAG HUNTER
 @params str url
@@ -17,7 +19,6 @@ TAG HUNTER
 @param list tagContent[str(tag), dict(features)]
 @params list findparams [[str(tag), dict(features), (optional)str(parameter to get the content)], [str(tag), dict(features), (optional)str(parameter to get the content)], [str(tag), dict(features), (optional)str(parameter to get the content)]]
 """
-
 
 class TagHunter:
   
@@ -40,24 +41,28 @@ class TagHunter:
     while self.confirmPage == True or self.confirmAnalyze == True:
       self.confirmPage = self.GetPages()
       self.confirmAnalyze = self.Analyze()
-    self.confirmClean = self.CleanContent()
     
+    self.confirmClean = self.CleanContent()
     
   def Analyze(self):
     try:
       if len(self.pages) != 0:
         pageForAnalyze = self.pages.pop()
+      
       else:
         return False 
+      
       page = pageForAnalyze[1]
       tempContent = []
    
-   
       for z in self.tagContent:  
         result = page.find_all(z[0])
+        
         for y in result:
           tempContent.append(y)
-      self.dirtyContent.append(tempContent)
+          
+      result= [pageForAnalyze[0], tempContent]
+      self.dirtyContent.append(result)
     except KeyError:
       
       return False
@@ -75,20 +80,30 @@ class TagHunter:
         for x in self.tagContent:
           for key,val in x[1].items():
             tempContent = []
-            for z in forAnalyze:
-              if z.get(key) != None:
-                if val in z.get(key):
-                  tempContent.append(z) 
+            result = []
+            for y in forAnalyze:
+              for z in y[1]:
+                if z.get(key) != None:
+                  if val in z.get(key):      
+                    tempContent.append(z)
+              
+              temploc = [y[0], tempcontent]
+              result.append(temploc)
+          
           if len(x) == 3:  
-            for z in range(0, len(tempContent)):
-              tempContent[z] = tempContent[z].get(x[2])
-        
-        for z in range(0, len(tempContent)):
-          self.content.append(tempContent[z])
+            for x in len(0, result):
+              for z in range(0, len(result[x][1])):
+                result[x][1].append(result[x][1][z].get(x[2]))
+
+        for z in range(0, len(result)):
+          self.content.append(result[x])
+      
       except KeyError:
         return False
+      
       else:
         pass
+    
     return True
   
   
@@ -103,8 +118,10 @@ class TagHunter:
           for x in range(0, self.nUrl):
             try:
               tempUrl = self.url.pop()
+            
             except KeyError:
               break
+            
             else:
               tempPages = []
               if tempUrl not in self.urls_ja_escaneadas:
@@ -115,23 +132,29 @@ class TagHunter:
                       tempPages.append(tempUrl)
                       try:
                         tempPages.append(BeautifulSoup(resposta.content, "html.parser"))
+                      
                       except TypeError:
                         pass
+                      
                       else:
                         self.pages.append(tempPages)   
                         bs = BeautifulSoup(resposta.content, "html.parser")
                         for link in bs.find_all('a'):
                           if link["href"].startswith(self.urlInicial):
                             self.url.append(link["href"])
+                          
                           elif link["href"].startswith("/") and tempUrl+link["href"] != tempUrl+"/":
                             self.url.append(tempUrl + link["href"])
+                          
                           elif link["href"].startswith(tempUrl) and tempUrl+link["href"] != tempUrl+"/":
                             self.url.append(link["href"])
+                    
                     except KeyError:
                       pass
           
         except KeyError:
           pass
+    
     except KeyError:
       return False    
     
@@ -139,11 +162,12 @@ class TagHunter:
     for x in range(0, len(self.content)):
       self.content.insert(x, str(self.content[x]))
 
-  def export(self, data, conteudo):
-    with open(data, 'a') as outfile:
-      json.dump(json.dumps(self.conteudo), outfile)
-
-
-
-site.content
-
+  def export(self, fileName=None):
+    currentDT = currentDT.strftime("%Y-%m-%d.%H:%M:%S")
+    if fileName != None:
+      with open(self.sitename+currentDT+".json", 'a') as outfile:
+        json.dump(json.dumps(self.conteudo), outfile)
+    
+    else:
+      with open(filename+".json", 'a') as outfile:
+        json.dump(json.dumps(self.conteudo), outfile)
