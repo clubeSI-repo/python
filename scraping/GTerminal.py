@@ -10,7 +10,7 @@ class search():
 			@param int nPage
 			@params dict proxies={'https': 'http://10.10.1.10:1080'}
 		"""
-		self.search = ReplaceChar(search, paginas)
+		self.search = self.ReplaceChar(search)
 		self.page = []
 		self.nPage = nPage*10
 		self.result = []
@@ -18,12 +18,12 @@ class search():
 
 	def Run(self):
 		count = 0
-		while nPage >= count:
-			if proxies != None:
-				self.page.append(requests.request('GET', "https://www.google.com.br/search?q="+search+"&oq="+search+"&start="+str(cont),proxies=self.proxies))
+		while self.nPage >= count:
+			if self.proxies != None:
+				self.page.append(requests.request('GET', "https://www.google.com.br/search?q="+str(search)+"&oq="+str(search)+"&start="+str(count),proxies=self.proxies))
 				count = count*10
 			else:
-				self.page.append(requests.request('GET', "https://www.google.com.br/search?q="+search+"&oq="+search+"&start="+str(cont)))
+				self.page.append(requests.request('GET', "https://www.google.com.br/search?q="+str(search)+"&oq="+str(search)+"&start="+str(count)))
 				count = count*10
 		for x in range(0, len(page)):
 			self.result.append(soup.find("div", {"id": "search"}))
@@ -42,3 +42,7 @@ class search():
 			for row in f_csv:
 				string = string.replace(row['simb'], row['ASC'])
 		return string
+
+procura = search("ovos lindos",3)
+procura.Run()
+procura.SaveInHtml("test")
