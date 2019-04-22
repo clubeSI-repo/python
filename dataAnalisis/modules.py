@@ -1,4 +1,4 @@
-from __future__ import division
+from future import absolute_import, division, print_function, unicode_literals
 class vector:
     def vector_add(self, v,w):
         return [v_i + v_w 
