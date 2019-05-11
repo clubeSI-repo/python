@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 import requests
 import json
 import datetime
-import mysqlclient as mysql
+import pymysql
 """
 TAG HUNTER
 @params str url
@@ -181,22 +181,25 @@ class TagHunter:
 
   def tosql(self,host,user,password,database,query,data):
     try:
-      cnx = mysql.connector.connect(user=user, password=password,
+      connection = pymysql.connect(user=user, password=password,
                                 host=host,
-                                database=database)
-    except mysql.connector.Error as err:
-      print(err)
-    else:
-      if(type(data) == "array"):
-        for x in data:
-          cnx.execute(query,x)
-          cnx.commit()
-          cnx.close()
-      else:
-        cnx.execute(query,data)
-        cnx.commit()
-        cnx.close()
-
+                                db=database,
+                              cursorclass=pymysql.cursors.DictCursor)
+    except Exception:
+      return False
+    else:  
+      with connection.cursor() as cursor:
+        if(type(data) == "array"):
+          for x in data:
+            cursor.execute(query,x)
+            cursor.commit()
+            cursor.close()
+        else:
+          cursor.execute(query,data)
+          cursor.commit()
+          
+    finally:
+      cursor.close()
   def tostring(self):
     for x in range(0, len(self.content)):
       self.content.insert(x, str(self.content[x]))
